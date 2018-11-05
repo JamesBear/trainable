@@ -12,6 +12,8 @@ import socket
 import json
 import traceback
 
+__version__='0.1.0'
+
 def md5(fname):
     hash_md5 = hashlib.md5()
     with open(fname, "rb") as f:
@@ -40,6 +42,7 @@ class TrainableBase:
         self.info['os.name'] = os.name
         self.info['user'] = getpass.getuser()
         self.info['hostname'] = socket.gethostname()
+        self.info['trainable_version'] = __version__
         self.info['cwd.original'] = os.getcwd()
         self.info['start_time'] = self.start_time.strftime('%Y/%m/%d %H:%M:%S.%f')
 
