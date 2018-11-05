@@ -2,10 +2,20 @@
 This script standardizes the model training workflow and logs all the input files/output files/environment info.
 """
 import sys
+import hashlib
+import os
+import inspect
+
+def md5(fname):
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
 class TrainableBase:
     def __init__(self):
-        pass
+        print("TrainableBase: initializing..")
 
     def train(self):
         pass
@@ -55,10 +65,15 @@ class MiniArgParser:
 
         print("Action: ", self.action, ", options: ", self.options, ", unparsed:", self.unparsed)
 
-
+def GetTrainable():
+    currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    sys.path.insert(0, currentdir)
+    from my_trainable import MyTrainable
+    trainable = MyTrainable()
+    return trainable
 
 if __name__ == '__main__':
-    trainable = TrainableBase()
+    trainable = GetTrainable()
     parser = MiniArgParser()
     parser.parse()
 
