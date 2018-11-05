@@ -10,6 +10,7 @@ from collections import OrderedDict
 import getpass
 import socket
 import json
+import traceback
 
 def md5(fname):
     hash_md5 = hashlib.md5()
@@ -21,6 +22,7 @@ def md5(fname):
 class TrainableBase:
     def __init__(self, parser):
         print("TrainableBase: initializing..")
+        self.start_time = datetime.datetime.now()
         self.parser = parser
         self.info = OrderedDict()
         self.info_sys()
@@ -39,8 +41,15 @@ class TrainableBase:
         self.info['user'] = getpass.getuser()
         self.info['hostname'] = socket.gethostname()
         self.info['cwd.original'] = os.getcwd()
+        self.info['start_time'] = self.start_time.strftime('%Y/%m/%d %H:%M:%S.%f')
+
+    def info_end(self):
+        end_time = datetime.datetime.now()
+        self.info['end_time'] = end_time.strftime('%Y/%m/%d %H:%M:%S.%f')
+        self.info['total_seconds'] = (end_time - self.start_time).total_seconds()
 
     def log_all(self):
+        self.info_end()
         content = json.dumps(self.info, indent=4)
         self.log_file.write(content)
 
@@ -50,7 +59,11 @@ class TrainableBase:
     def run(self):
         if self.parser.action == 'train':
             self.create_log_file()
-            self.train()
+            try:
+                self.train()
+            except Exception as error:
+                self.info['error'] = str(error)
+                self.info['error_stack'] = traceback.format_exc()
             self.log_all()
             self.log_file.close()
         else:
