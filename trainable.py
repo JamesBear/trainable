@@ -6,6 +6,10 @@ import hashlib
 import os
 import inspect
 import datetime
+from collections import OrderedDict
+import getpass
+import socket
+import json
 
 def md5(fname):
     hash_md5 = hashlib.md5()
@@ -18,12 +22,27 @@ class TrainableBase:
     def __init__(self, parser):
         print("TrainableBase: initializing..")
         self.parser = parser
+        self.info = OrderedDict()
+        self.info_sys()
 
     def train(self):
-        print("TrainableBase: `train` unimplemented..")
+        if 'c' in self.parser.options:
+            os.system(self.parser.options['c'])
+        elif 'f' in self.parser.options:
+            os.system(self.parser.options['f'])
+        else:
+            print("TrainableBase: don't know how to train under current options.")
+
+    def info_sys(self):
+        self.info['argv'] = self.parser.argv
+        self.info['os.name'] = os.name
+        self.info['user'] = getpass.getuser()
+        self.info['hostname'] = socket.gethostname()
+        self.info['cwd.original'] = os.getcwd()
 
     def log_all(self):
-        print("TrainableBase: `log_all` unimplemented..")
+        content = json.dumps(self.info, indent=4)
+        self.log_file.write(content)
 
     def modify(self):
         print("TrainableBase: `modify` unimplemented..")
@@ -64,6 +83,7 @@ class MiniArgParser:
     
     def parse(self):
         #print('sys.argv:', sys.argv)
+        self.argv = sys.argv
         num_args = len(sys.argv)
         if num_args == 1:
             return
