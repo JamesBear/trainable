@@ -12,6 +12,7 @@ import socket
 import json
 import traceback
 from subprocess import check_output
+import uuid
 
 __version__='0.1.0'
 
@@ -46,6 +47,7 @@ class TrainableBase:
         self.info['trainable_version'] = __version__
         self.info['cwd.original'] = os.getcwd()
         self.info['start_time'] = self.start_time.strftime('%Y/%m/%d %H:%M:%S.%f')
+        self.info['uuid'] = str(uuid.uuid4())
 
     def info_git(self):
         try:
