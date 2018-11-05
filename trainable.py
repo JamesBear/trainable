@@ -70,12 +70,52 @@ class TrainableBase:
     def modify(self):
         print("TrainableBase: `modify` unimplemented..")
 
+    def get_files_info(self, list_of_files):
+        info_list = OrderedDict()
+        for f in list_of_files:
+            if os.path.exists(f):
+                file_hash = md5(f)
+            else:
+                file_hash = ''
+            info_list[f] = file_hash
+
+        return info_list
+
+    def info_input_files(self):
+        file_list = self.get_input_files()
+        if file_list != None:
+            self.info['input_files'] = self.get_files_info(file_list)
+
+    def info_output_files(self):
+        file_list = self.get_output_files()
+        if file_list != None:
+            self.info['output_files'] = self.get_files_info(file_list)
+
+
+    def info_parameters(self):
+        paras = self.get_parameters()
+        if paras != None:
+            self.info['parameters'] = paras
+
+    def get_input_files(self):
+        return None
+
+    def get_output_files(self):
+        return None
+
+    def get_parameters(self):
+        return None
+
+
     def run(self):
         if self.parser.action == 'train':
             self.create_log_file()
             self.info_git()
             try:
                 self.train()
+                self.info_parameters()
+                self.info_input_files()
+                self.info_output_files()
             except Exception as error:
                 self.info['error'] = str(error)
                 self.info['error_stack'] = traceback.format_exc()
@@ -108,7 +148,7 @@ class MiniArgParser:
         self.action = ''
         self.options = {}
         self.unparsed = []
-    
+
     def parse(self):
         #print('sys.argv:', sys.argv)
         self.argv = sys.argv
@@ -117,7 +157,7 @@ class MiniArgParser:
             return
         self.action = sys.argv[1]
         i = 2
-        
+
         while i < num_args:
             cur = sys.argv[i]
             if len(cur) >= 2:
@@ -156,5 +196,3 @@ if __name__ == '__main__':
     trainable = GetTrainable(currentdir, parser)
     os.chdir(currentdir)
     trainable.run()
-
-    
