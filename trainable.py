@@ -11,6 +11,7 @@ import getpass
 import socket
 import json
 import traceback
+from subprocess import check_output
 
 __version__='0.1.0'
 
@@ -46,6 +47,16 @@ class TrainableBase:
         self.info['cwd.original'] = os.getcwd()
         self.info['start_time'] = self.start_time.strftime('%Y/%m/%d %H:%M:%S.%f')
 
+    def info_git(self):
+        try:
+            self.info['git_controlled'] = True
+            git_hash = check_output('git rev-parse HEAD').decode('utf-8').strip()
+            git_branch = check_output('git rev-parse --abbrev-ref HEAD').decode('utf-8').strip()
+            self.info['git_hash'] = git_hash
+            self.info['git_branch'] = git_branch
+        except:
+            self.info['git_controlled'] = False
+
     def info_end(self):
         end_time = datetime.datetime.now()
         self.info['end_time'] = end_time.strftime('%Y/%m/%d %H:%M:%S.%f')
@@ -62,6 +73,7 @@ class TrainableBase:
     def run(self):
         if self.parser.action == 'train':
             self.create_log_file()
+            self.info_git()
             try:
                 self.train()
             except Exception as error:
