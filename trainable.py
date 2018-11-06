@@ -23,6 +23,9 @@ def md5(fname):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
+def file_info(fname):
+    return str(os.path.getsize(fname))+','+md5(fname)
+
 class TrainableBase:
     def __init__(self, parser):
         print("TrainableBase: initializing..")
@@ -82,7 +85,7 @@ class TrainableBase:
         info_list = OrderedDict()
         for f in list_of_files:
             if os.path.exists(f):
-                file_hash = md5(f)
+                file_hash = file_info(f)
             else:
                 file_hash = ''
             info_list[f] = file_hash
