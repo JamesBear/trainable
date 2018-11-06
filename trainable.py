@@ -30,6 +30,7 @@ class TrainableBase:
         self.parser = parser
         self.info = OrderedDict()
         self.info_sys()
+        self.app_name = ''
 
     def train(self):
         if 'c' in self.parser.options:
@@ -48,6 +49,8 @@ class TrainableBase:
         self.info['cwd.original'] = os.getcwd()
         self.info['start_time'] = self.start_time.strftime('%Y/%m/%d %H:%M:%S.%f')
         self.info['uuid'] = str(uuid.uuid4())
+        if self.app_name != '':
+            self.info['app_name'] = self.app_name
 
     def info_git(self):
         try:
