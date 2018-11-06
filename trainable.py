@@ -29,8 +29,11 @@ class TrainableBase:
         self.start_time = datetime.datetime.now()
         self.parser = parser
         self.info = OrderedDict()
+        self.app_name = self.get_app_name()
         self.info_sys()
-        self.app_name = ''
+
+    def get_app_name(self):
+        return ''
 
     def train(self):
         if 'c' in self.parser.options:
