@@ -14,7 +14,7 @@ import traceback
 from subprocess import check_output
 import uuid
 
-__version__='0.1.0'
+__version__='0.1.1'
 
 def md5(fname):
     hash_md5 = hashlib.md5()
