@@ -168,6 +168,10 @@ class MiniArgParser:
             return
         self.action = sys.argv[1]
         i = 2
+        self.target = ''
+        if i < num_args and not sys.argv[i].startswith('-'):
+            self.target = sys.argv[i]
+            i += 1
 
         while i < num_args:
             cur = sys.argv[i]
@@ -192,12 +196,17 @@ class MiniArgParser:
             break
         self.unparsed = sys.argv[i:]
 
-        print("Action: ", self.action, ", options: ", self.options, ", unparsed:", self.unparsed)
+        print("Action: ", self.action, ", target:", self.target, ", options: ", self.options, ", unparsed:", self.unparsed)
 
 def GetTrainable(currentdir, parser):
     sys.path.insert(0, currentdir)
-    from my_trainable import MyTrainable
-    trainable = MyTrainable(parser)
+    if parser.target == '':
+        modulename = 'my_trainable'
+    else:
+        modulename = 'my_trainable_' + parser.target
+
+    new_module = __import__(modulename)
+    trainable = new_module.MyTrainable(parser)
     return trainable
 
 if __name__ == '__main__':
