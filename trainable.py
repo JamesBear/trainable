@@ -92,16 +92,35 @@ class TrainableBase:
 
         return info_list
 
-    def info_input_files(self):
-        file_list = self.get_input_files()
+    def info_input_files(self, manual=False):
+        if manual:
+            file_list = self.manually_input_files('Please manually type input files:')
+        else:
+            file_list = self.get_input_files()
         if file_list != None:
             self.info['input_files'] = self.get_files_info(file_list)
 
-    def info_output_files(self):
-        file_list = self.get_output_files()
+    def info_output_files(self, manual=False):
+        if manual:
+            file_list = self.manually_input_files('Please manually type output files:')
+        else:
+            file_list = self.get_output_files()
         if file_list != None:
             self.info['output_files'] = self.get_files_info(file_list)
 
+    def manually_input_files(self, msg=''):
+        print(msg)
+        count = 0
+        paths = []
+        while True:
+            s = input('Input a file path (or empty string to stop inputting):')
+            s = s.strip('\"\' \t')
+            if s == '':
+                break
+            paths.append(s)
+            count += 1
+            print('Path recorded. Current count = {}'.format(count))
+        return paths
 
     def info_parameters(self):
         paras = self.get_parameters()
@@ -127,6 +146,18 @@ class TrainableBase:
                 self.info_parameters()
                 self.info_input_files()
                 self.info_output_files()
+            except Exception as error:
+                self.info['error'] = str(error)
+                self.info['error_stack'] = traceback.format_exc()
+            self.log_all()
+            self.log_file.close()
+        elif self.parser.action == 'log':
+            self.create_log_file()
+            self.info_git()
+            try:
+                self.info_parameters()
+                self.info_input_files(manual=True)
+                self.info_output_files(manual=True)
             except Exception as error:
                 self.info['error'] = str(error)
                 self.info['error_stack'] = traceback.format_exc()
